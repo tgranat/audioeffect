@@ -7,6 +7,7 @@ import java.io.PipedOutputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Control;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
@@ -57,16 +58,29 @@ public class GuitarEffect {
             sourceDataLine.open(format);
             sourceDataLine.start();
 
+    		Control[] inputControls = targetDataLine.getControls();
+    		logger.debug("Input controls");
+    		for (Control control : inputControls) {
+    			logger.debug("   " +control.getType().toString());
+    		}
+    		
+    		Control[] outputControls = sourceDataLine.getControls();
+    		logger.debug("Output controls");
+    		for (Control control : outputControls) {
+    			logger.debug("   " + control.getType().toString());
+    		}
+
 
             out = new ByteArrayOutputStream();
             pipedOut = new PipedOutputStream();
             pipedIn = new PipedInputStream(pipedOut);
 
             Runnable captureRunner = new Runnable() {
-                int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
+                int bufferSize = ((int) format.getSampleRate() * format.getFrameSize()) ;
                 byte[] bufferCapture = new byte[bufferSize];
 
                 public void run() {
+                	logger.debug("buffer size = " + bufferSize);
                     captureRunning = true;
                     try {
                         while (captureRunning) {
@@ -215,7 +229,7 @@ public class GuitarEffect {
         }
         
         GuitarEffect ge = new GuitarEffect(sc);
-        ge.listMixers();
+        //ge.listMixers();
 
         ge.start();
         
