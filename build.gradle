@@ -1,0 +1,34 @@
+
+buildscript {
+	repositories {
+		jcenter()
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+	}
+}
+
+plugins {
+
+    id 'java-library'
+	id 'java'
+	id 'com.github.johnrengelman.shadow' version '2.0.4'
+}
+
+jar {
+	manifest {
+		attributes 'Main-Class': 'com.granatguitar.GuitarEffect'
+	}
+}
+
+dependencies {
+	implementation 'org.slf4j:slf4j-api:1.7.26'
+	implementation 'ch.qos.logback:logback-classic:1.2.3'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.0'
+}
+
+repositories {
+     jcenter()
+     mavenCentral()
+}

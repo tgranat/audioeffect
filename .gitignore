@@ -1,0 +1,10 @@
+# eclipse
+bin/
+tmp/
+.project
+.classpath
+.settings
+# gradle
+build/
+.gradle
+
