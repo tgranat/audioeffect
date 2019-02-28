@@ -3,9 +3,13 @@ package com.granatguitar;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.BooleanControl;
+import javax.sound.sampled.CompoundControl;
 import javax.sound.sampled.Control;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.EnumControl;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.Line;
 import javax.sound.sampled.Line.Info;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
@@ -32,8 +36,8 @@ public class SoundCard {
 	private SourceDataLine lineToAmp;
 	private AudioFormat audioFormat;
 
-	//private static final String EXTERNAL_SOUNDCARD = "Realtek High Definition Audio";
-	private static final String EXTERNAL_SOUNDCARD = "C-Media USB Headphone";
+	private static final String EXTERNAL_SOUNDCARD = "Realtek High Definition Audio";
+	//private static final String EXTERNAL_SOUNDCARD = "C-Media USB Headphone";
 	private static final Info EXTERNAL_SOUNDCARD_INPUT = Port.Info.LINE_IN;
 	private static final Info EXTERNAL_SOUNDCARD_OUTPUT = Port.Info.SPEAKER;
 
@@ -44,6 +48,77 @@ public class SoundCard {
 		initAudioFormat();
 		initMixers();
 	}
+	
+    static public void printMixers() throws LineUnavailableException {
+        Mixer.Info[] mixers = AudioSystem.getMixerInfo();
+        for (Mixer.Info mixerInfo : mixers) {
+        	System.out.println("Mixer: "+mixerInfo.getDescription()+
+        	          " ["+mixerInfo.getName()+"]");
+            //System.out.println("Mixer: " + mixerInfo.getName());
+ 
+            //System.out.println("  " +  mixer.getDescription());
+            Mixer mixer = AudioSystem.getMixer(mixerInfo);
+            
+            for (Line.Info thisLineInfo:mixer.getSourceLineInfo()) {
+                if (thisLineInfo.getLineClass().getName().equals(
+                  "javax.sound.sampled.Port")) {
+                  Line thisLine = mixer.getLine(thisLineInfo);
+                  thisLine.open();
+                  System.out.println("  Source Port: "
+                    +thisLineInfo.toString());
+                  for (Control thisControl : thisLine.getControls()) {
+                    System.out.println(AnalyzeControl(thisControl));}
+                  thisLine.close();}}
+            for (Line.Info thisLineInfo:mixer.getTargetLineInfo()) {
+              if (thisLineInfo.getLineClass().getName().equals(
+                "javax.sound.sampled.Port")) {
+                Line thisLine = mixer.getLine(thisLineInfo);
+                thisLine.open();
+                System.out.println("  Target Port: "
+                  +thisLineInfo.toString());
+                for (Control thisControl : thisLine.getControls()) {
+                  System.out.println(AnalyzeControl(thisControl));}
+                thisLine.close();}}}
+            
+            /*
+            Line.Info[] sourceLines = mixer.getSourceLineInfo();
+            for (Line.Info sourceLineInfo : sourceLines) {
+                int maxLines = mixer.getMaxLines(sourceLineInfo);
+                if (maxLines != AudioSystem.NOT_SPECIFIED) {
+                    System.out.println("  Source lines: " + maxLines);
+                }
+            }
+            Line.Info[] targetLines = mixer.getTargetLineInfo();
+            for (Line.Info targetLineInfo : targetLines) {
+                int maxLines = mixer.getMaxLines(targetLineInfo);
+                if (maxLines != AudioSystem.NOT_SPECIFIED) {
+                    System.out.println("  Target lines: " + maxLines);
+                }
+            }
+            */
+        }
+    
+private static String AnalyzeControl(Control thisControl) {
+	String type = thisControl.getType().toString();
+	if (thisControl instanceof BooleanControl) {
+		return "    Control: "+type+" (boolean)"; }
+	if (thisControl instanceof CompoundControl) {
+		System.out.println("    Control: "+type+
+				" (compound - values below)");
+		String toReturn = "";
+		for (Control children:
+			((CompoundControl)thisControl).getMemberControls()) {
+			toReturn+="  "+AnalyzeControl(children)+"\n";}
+		return toReturn.substring(0, toReturn.length()-1);}
+	if (thisControl instanceof EnumControl) {
+		return "    Control:"+type+" (enum: "+thisControl.toString()+")";}
+	if (thisControl instanceof FloatControl) {
+		return "    Control: "+type+" (float: from "+
+				((FloatControl) thisControl).getMinimum()+" to "+
+				((FloatControl) thisControl).getMaximum()+")";}
+	return "    Control: unknown type";
+}
+
 
 	public Mixer getMixerFromGuitar() {
 		return mixerFromGuitar;

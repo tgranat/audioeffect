@@ -7,7 +7,9 @@ import java.io.PipedOutputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.BooleanControl;
 import javax.sound.sampled.Control;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
@@ -69,6 +71,11 @@ public class GuitarEffect {
     		for (Control control : outputControls) {
     			logger.debug("   " + control.getType().toString());
     		}
+    		FloatControl fc = (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+    		BooleanControl bc = (BooleanControl) sourceDataLine.getControl(BooleanControl.Type.MUTE);
+    	
+    		logger.debug(fc.toString());
+    		logger.debug(bc.toString());
 
 
             out = new ByteArrayOutputStream();
@@ -80,6 +87,7 @@ public class GuitarEffect {
                 byte[] bufferCapture = new byte[bufferSize];
 
                 public void run() {
+                    logger.debug("Start thread capturing input");
                 	logger.debug("buffer size = " + bufferSize);
                     captureRunning = true;
                     try {
@@ -111,12 +119,11 @@ public class GuitarEffect {
             };
             
             Thread captureThread = new Thread(captureRunner);
-            logger.debug("Start thread capturing input");
             captureThread.start();
 
             // wait a while let capture begin to avoid NPE
             try {
-                Thread.sleep(4000);
+            	Thread.sleep(4000);
             } catch (InterruptedException ex) {
                 logger.error(null, ex);
             }
@@ -210,8 +217,9 @@ public class GuitarEffect {
      * @param args the command line arguments
      * @throws JoranException 
      * @throws IOException 
+     * @throws LineUnavailableException 
      */
-    public static void main(String[] args) throws JoranException, IOException {
+    public static void main(String[] args) throws JoranException, IOException, LineUnavailableException {
     	
     	/*
         Handler systemOutHandler = new StreamHandler(System.out, new SimpleFormatter());
@@ -230,10 +238,11 @@ public class GuitarEffect {
         
         GuitarEffect ge = new GuitarEffect(sc);
         //ge.listMixers();
+        SoundCard.printMixers();
 
         ge.start();
-        
-        
+        logger.debug("thread started");;
+       
         
     }
 
