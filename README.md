@@ -1,2 +1,1 @@
-# Audioeffect
-# Experimenting with javax.sound.sampled
+Experimenting with javax.sound.sampled
