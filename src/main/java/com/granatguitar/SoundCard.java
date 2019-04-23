@@ -36,8 +36,8 @@ public class SoundCard {
 	private SourceDataLine lineToAmp;
 	private AudioFormat audioFormat;
 
-	private static final String EXTERNAL_SOUNDCARD = "Realtek High Definition Audio";
-	//private static final String EXTERNAL_SOUNDCARD = "C-Media USB Headphone";
+	//private static final String EXTERNAL_SOUNDCARD = "Realtek High Definition Audio";
+	private static final String EXTERNAL_SOUNDCARD = "C-Media USB Headphone";
 	private static final Info EXTERNAL_SOUNDCARD_INPUT = Port.Info.LINE_IN;
 	private static final Info EXTERNAL_SOUNDCARD_OUTPUT = Port.Info.SPEAKER;
 
@@ -168,7 +168,7 @@ private static String AnalyzeControl(Control thisControl) {
 		mixerToAmp = null;
 		Mixer.Info[] mixers = AudioSystem.getMixerInfo();
 		for (Mixer.Info mixerInfo : mixers) {
-			logger.debug("Checking: " + mixerInfo.getName());
+			logger.debug("Checking: [" + mixerInfo.getDescription() + "] " + mixerInfo.getName() );
 			if (mixerInfo.getName().contains(EXTERNAL_SOUNDCARD.substring(0, 10))) { // check if shorter
 				if (mixerFromGuitar == null) {
 					Mixer mixerToCheck = AudioSystem.getMixer(mixerInfo);
